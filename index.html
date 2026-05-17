@@ -1,1 +1,73 @@
-
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HERP – نظام تشغيل إداري سيادي</title>
+    <style>
+        /* نفس الأنماط السابقة */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            font-family: system-ui, 'Cairo', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .container {
+            max-width: 1000px;
+            background: rgba(18,18,24,0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 { font-size: 3rem; color: #e2e8f0; }
+        .cards { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin: 2rem 0; }
+        .card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            flex: 1;
+            min-width: 200px;
+        }
+        .btn {
+            display: inline-block;
+            background: #2dd4bf;
+            color: #0a0a0a;
+            padding: 0.7rem 1.2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2dd4bf;
+            color: #2dd4bf;
+        }
+        footer { margin-top: 2rem; color: #64748b; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>HERP</h1>
+    <p style="color:#94a3b8">نظام تشغيل إداري سيادي · مجاني للأبد</p>
+    <div class="cards">
+        <div class="card"><div>🚀</div><h3>تشغيل PWA</h3><button id="launchPwa" class="btn">▶ تشغيل مباشر</button></div>
+        <div class="card"><div>💾</div><h3>سطح المكتب</h3><div><a href="#" id="win" class="btn-outline">Windows</a> <a href="#" id="mac" class="btn-outline">macOS</a> <a href="#" id="linux" class="btn-outline">Linux</a></div></div>
+        <div class="card"><div>☁️</div><h3>سيرفر خاص</h3><button id="serverGuide" class="btn-outline">دليل التثبيت</button></div>
+    </div>
+    <footer>🔓 MIT · 🤝 مجاني للأبد · 🧠 ذكاء محلي اختياري</footer>
+</div>
+<script>
+    document.getElementById('launchPwa').onclick = () => location.href = '/app/';
+    document.getElementById('win').href = 'https://github.com/herp-project/herp/releases/latest/download/herp-win.exe';
+    document.getElementById('mac').href = 'https://github.com/herp-project/herp/releases/latest/download/herp-macos.dmg';
+    document.getElementById('linux').href = 'https://github.com/herp-project/herp/releases/latest/download/herp-linux.AppImage';
+    document.getElementById('serverGuide').onclick = () => alert('دليل التثبيت قيد الإعداد');
+</script>
+</body>
+</html>
