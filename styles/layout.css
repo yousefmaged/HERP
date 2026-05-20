@@ -1,0 +1,60 @@
+/* HERP Layout — تخطيط الشاشات والألواح */
+
+/* شاشة الترحيب */
+.welcome-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* شاشة الهوية */
+.identity-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* شاشة المربعات */
+.modules-screen {
+    padding: 20px;
+}
+
+/* فضاء العمل */
+.workspace-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background: var(--bg-surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+}
+
+.main-area {
+    flex: 1;
+    overflow: auto;
+}
+
+/* شبكة الوحدات */
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    padding: 20px;
+}
+
+/* استجابة للشاشات الصغيرة */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    .modules-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+}
