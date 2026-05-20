@@ -1,0 +1,19 @@
+{
+  "required": [
+    "storage:read",
+    "storage:write",
+    "events:subscribe",
+    "events:emit"
+  ],
+  "provided": [
+    "knowledge:read",
+    "knowledge:write",
+    "knowledge:search",
+    "knowledge:export"
+  ],
+  "roles": {
+    "viewer": ["knowledge:read"],
+    "editor": ["knowledge:read", "knowledge:write", "knowledge:search"],
+    "admin": ["knowledge:read", "knowledge:write", "knowledge:search", "knowledge:export"]
+  }
+}
