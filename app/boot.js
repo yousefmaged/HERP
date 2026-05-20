@@ -14,6 +14,13 @@ function updateBootStatus(percent, message) {
     if (bootStatus) bootStatus.textContent = message;
     console.log(`[BOOT] ${percent}% — ${message}`);
 }
+// في boot.js
+import { startHERP } from './main.js';
+
+async function boot() {
+    // ... شاشة الإقلاع ...
+    await startHERP();
+}
 
 // تسجيل Service Worker (لـ PWA والتخزين المؤقت)
 async function registerServiceWorker() {
