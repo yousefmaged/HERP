@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>HERP Integration Test Runner</title>
+    <style>
+        body { background: #080810; color: #f0f0f8; font-family: monospace; padding: 20px; }
+        #output { background: #1e1e2e; padding: 16px; border-radius: 12px; white-space: pre-wrap; max-height: 80vh; overflow: auto; }
+        .pass { color: #10b981; }
+        .fail { color: #e94560; }
+    </style>
+</head>
+<body>
+    <h1>🧪 HERP Integration Test Suite</h1>
+    <div id="output">جاري تشغيل الاختبارات...</div>
+    <script type="module">
+        import { runIntegrationTest } from './full-system.test.js';
+
+        const outputDiv = document.getElementById('output');
+        const originalConsoleLog = console.log;
+        console.log = (...args) => {
+            originalConsoleLog(...args);
+            outputDiv.innerHTML += args.join(' ') + '\n';
+        };
+        console.error = (...args) => {
+            originalConsoleError(...args);
+            outputDiv.innerHTML += `<span class="fail">${args.join(' ')}</span>\n`;
+        };
+
+        try {
+            const results = await runIntegrationTest();
+            outputDiv.innerHTML += `\n✅ الاختبارات الكلية: ${results.passed} نجاح / ${results.failed} فشل`;
+            if (results.failed === 0) {
+                outputDiv.innerHTML += '\n🎉 جميع الاختبارات اجتازت بنجاح! النظام جاهز.';
+            }
+        } catch (err) {
+            console.error('فشل تشغيل الاختبارات', err);
+        }
+    </script>
+</body>
+</html>
