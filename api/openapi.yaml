@@ -1,0 +1,27 @@
+openapi: 3.0.0
+info:
+  title: HERP API
+  description: واجهات برمجة التطبيقات لنظام HERP السيادي
+  version: 0.1.0
+servers:
+  - url: http://localhost:3000/api
+    description: الخادم المحلي للتطوير
+paths:
+  /identity:
+    get:
+      summary: الحصول على هوية الكيان
+      responses:
+        '200':
+          description: نجاح
+  /modules:
+    get:
+      summary: قائمة الوحدات المثبتة
+      responses:
+        '200':
+          description: نجاح
+  /sync/status:
+    get:
+      summary: حالة المزامنة
+      responses:
+        '200':
+          description: نجاح
