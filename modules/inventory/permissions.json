@@ -1,0 +1,9 @@
+{
+  "required": ["storage:read", "storage:write"],
+  "provided": ["inventory:read", "inventory:write", "inventory:manage"],
+  "roles": {
+    "viewer": ["inventory:read"],
+    "storekeeper": ["inventory:read", "inventory:write"],
+    "admin": ["inventory:read", "inventory:write", "inventory:manage"]
+  }
+}
