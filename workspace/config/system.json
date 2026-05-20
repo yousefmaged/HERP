@@ -1,0 +1,25 @@
+{
+  "version": "0.1.0",
+  "name": "HERP System",
+  "createdAt": null,
+  "updatedAt": null,
+  "settings": {
+    "language": "ar",
+    "theme": "dark",
+    "telemetry": false,
+    "autoBackup": true,
+    "backupIntervalHours": 24,
+    "maxBackups": 30,
+    "healthCheckIntervalMinutes": 5
+  },
+  "features": {
+    "ai": false,
+    "sync": false,
+    "multiUser": false
+  },
+  "security": {
+    "sessionTimeoutMinutes": 60,
+    "maxLoginAttempts": 5,
+    "requireMFA": false
+  }
+}
