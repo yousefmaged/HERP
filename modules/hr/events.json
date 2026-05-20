@@ -1,0 +1,12 @@
+{
+  "emits": [
+    "hr:employee-added",
+    "hr:employee-updated",
+    "hr:leave-requested",
+    "hr:payroll-processed"
+  ],
+  "listens": [
+    "identity:loaded",
+    "projects:task-assigned"
+  ]
+}
