@@ -1,70 +1,46 @@
 /**
- * HERP Bootloader
- * المسؤولية: تهيئة البيئة، تحميل النواة، إخفاء شاشة الإقلاع
+ * HERP Bootloader — إقلاع النظام
  */
 
-// عناصر DOM
-const bootScreen = document.getElementById('boot-screen');
-const bootProgress = document.getElementById('boot-progress');
-const bootStatus = document.getElementById('boot-status');
+import { startHERP } from './main.js';
 
-// تحديث حالة الإقلاع
+let bootScreen, bootProgress, bootStatus;
+
 function updateBootStatus(percent, message) {
     if (bootProgress) bootProgress.style.width = `${percent}%`;
     if (bootStatus) bootStatus.textContent = message;
     console.log(`[BOOT] ${percent}% — ${message}`);
 }
-// في boot.js
-import { startHERP } from './main.js';
 
-async function boot() {
-    // ... شاشة الإقلاع ...
-    await startHERP();
-}
-
-// تسجيل Service Worker (لـ PWA والتخزين المؤقت)
 async function registerServiceWorker() {
-    if (!('serviceWorker' in navigator)) {
-        console.warn('[BOOT] Service Worker غير مدعوم في هذا المتصفح');
-        return;
-    }
+    if (!('serviceWorker' in navigator)) return;
     try {
-        const registration = await navigator.serviceWorker.register('/sw.js');
-        console.log('[BOOT] Service Worker مسجل بنجاح:', registration.scope);
-    } catch (error) {
-        console.error('[BOOT] فشل تسجيل Service Worker:', error);
+        await navigator.serviceWorker.register('/sw.js');
+        console.log('[SW] Service Worker مسجل');
+    } catch (err) {
+        console.warn('[SW] فشل التسجيل', err);
     }
 }
 
-// دالة الإقلاع الرئيسية
 async function boot() {
+    bootScreen = document.getElementById('boot-screen');
+    bootProgress = document.getElementById('boot-progress');
+    bootStatus = document.getElementById('boot-status');
+    
     updateBootStatus(10, 'تسجيل Service Worker...');
     await registerServiceWorker();
-
-    updateBootStatus(30, 'تحميل ناقل الأحداث...');
-    await import('./events/bus.js');
-    await import('./events/event-types.js');
-
-    updateBootStatus(50, 'تحميل طبقة التشفير...');
-    await import('./crypto/encryption.js');
-    await import('./crypto/key-manager.js');
-
-    updateBootStatus(70, 'تحميل طبقة التخزين...');
-    await import('./storage/adapters/local.adapter.js');
-
-    updateBootStatus(90, 'تشغيل النواة...');
-    const { Kernel } = await import('./core/kernel.js');
-    const kernel = new Kernel();
-    await kernel.init();
-
+    
+    updateBootStatus(30, 'تحميل النواة...');
+    // startHERP ستقوم بتحميل باقي المكونات
+    await startHERP();
+    
     updateBootStatus(100, 'جاهز ✓');
     setTimeout(() => {
-        if (bootScreen) bootScreen.classList.add('hidden');
+        if (bootScreen) bootScreen.style.display = 'none';
     }, 500);
 }
 
-// بدء الإقلاع
-boot().catch(error => {
-    console.error('[BOOT] فشل الإقلاع:', error);
+boot().catch(err => {
+    console.error('[BOOT] فشل الإقلاع:', err);
     if (bootStatus) bootStatus.textContent = '⚠ خطأ فادح — راجع وحدة التحكم';
 });
