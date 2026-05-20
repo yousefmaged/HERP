@@ -1,0 +1,26 @@
+name: Release HERP
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: npm test
+      - name: Build PWA
+        run: npm run build
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
