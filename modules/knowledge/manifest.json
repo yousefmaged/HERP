@@ -1,0 +1,12 @@
+{
+  "id": "knowledge",
+  "name": "المفكرة الذكية",
+  "version": "0.1.0",
+  "description": "إدارة المعرفة والمستندات والملاحظات الذكية",
+  "author": "HERP Community",
+  "icon": "📝",
+  "color": "#8B5CF6",
+  "dependencies": [],
+  "entrypoint": "ui/index.html",
+  "apiVersion": 1
+}
