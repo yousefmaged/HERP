@@ -1,0 +1,13 @@
+{
+  "emits": [
+    "knowledge:page-created",
+    "knowledge:page-updated",
+    "knowledge:page-deleted",
+    "knowledge:search-performed"
+  ],
+  "listens": [
+    "identity:loaded",
+    "system:shutdown",
+    "module:activated"
+  ]
+}
