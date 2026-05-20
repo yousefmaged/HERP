@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "position": { "type": "string" },
+    "salary": { "type": "number" },
+    "email": { "type": "string" },
+    "status": { "type": "string", "enum": ["active", "inactive", "on_leave"] },
+    "leaveBalance": { "type": "number" },
+    "createdAt": { "type": "number" },
+    "updatedAt": { "type": "number" }
+  },
+  "required": ["id", "name", "position"]
+}
