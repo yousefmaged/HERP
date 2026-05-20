@@ -1,0 +1,12 @@
+{
+  "id": "finance",
+  "name": "المالية",
+  "version": "0.1.0",
+  "description": "إدارة الحسابات والمعاملات المالية",
+  "author": "HERP Community",
+  "icon": "💰",
+  "color": "#10B981",
+  "permissions": ["finance:read", "finance:write"],
+  "dependencies": [],
+  "entrypoint": "index.html"
+}
