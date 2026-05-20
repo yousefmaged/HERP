@@ -53,3 +53,48 @@ query {
   pages { id title }
   employees { name position }
 }
+
+---
+
+## 📄 5. البيئة الإنتاجية Docker Compose
+
+### `infrastructure/docker/docker-compose.prod.yml`
+
+```yaml
+version: '3.8'
+
+services:
+  herp-core:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - herp-workspace:/workspace
+    environment:
+      - NODE_ENV=production
+      - HERP_MODE=server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  herp-agent:
+    image: herp/agent:latest
+    environment:
+      - AGENT_MODE=auto
+    depends_on:
+      - herp-core
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  herp-workspace:
