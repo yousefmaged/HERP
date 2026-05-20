@@ -1,0 +1,12 @@
+{
+  "id": "inventory",
+  "name": "المخزون",
+  "version": "0.1.0",
+  "description": "إدارة المنتجات والمستودعات والمخزون",
+  "author": "HERP Community",
+  "icon": "📦",
+  "color": "#84CC16",
+  "dependencies": ["finance"],
+  "entrypoint": "ui/index.html",
+  "apiVersion": 1
+}
