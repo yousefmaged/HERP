@@ -1,0 +1,12 @@
+{
+  "id": "hr",
+  "name": "الموارد البشرية",
+  "version": "0.1.0",
+  "description": "إدارة الموظفين، الإجازات، والرواتب",
+  "author": "HERP Community",
+  "icon": "👥",
+  "color": "#06B6D4",
+  "dependencies": ["permissions"],
+  "entrypoint": "ui/index.html",
+  "apiVersion": 1
+}
