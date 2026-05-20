@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "sku": { "type": "string" },
+    "quantity": { "type": "number" },
+    "price": { "type": "number" },
+    "warehouse": { "type": "string" },
+    "minStock": { "type": "number" },
+    "createdAt": { "type": "number" },
+    "updatedAt": { "type": "number" }
+  },
+  "required": ["id", "name", "sku", "quantity"]
+}
