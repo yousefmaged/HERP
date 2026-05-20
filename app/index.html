@@ -1,78 +1,26 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>HERP — النظام السيادي للمؤسسات</title>
-    <meta name="theme-color" content="#080810">
+    <title>HERP — النظام السيادي</title>
     <link rel="manifest" href="../manifest.json">
-    <link rel="stylesheet" href="../styles/base.css">
-    <link rel="stylesheet" href="../styles/theme.css">
-    <link rel="stylesheet" href="../styles/layout.css">
-    <style>
-        /* شاشة الإقلاع المؤقتة — سيتم نقلها لاحقاً */
-        #boot-screen {
-            position: fixed;
-            inset: 0;
-            background: #080810;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 24px;
-            z-index: 10000;
-            transition: opacity 0.4s ease;
-        }
-        #boot-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .boot-logo {
-            font-size: 64px;
-            animation: pulse 1.5s ease infinite;
-        }
-        .boot-title {
-            font-size: 28px;
-            font-weight: 800;
-            color: #f0f0f8;
-            letter-spacing: 2px;
-        }
-        .boot-bar {
-            width: 240px;
-            height: 2px;
-            background: #1e1e2e;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .boot-progress {
-            width: 0%;
-            height: 100%;
-            background: #e94560;
-            transition: width 0.2s ease;
-        }
-        .boot-status {
-            font-size: 12px;
-            color: #8888aa;
-            font-family: monospace;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
-    </style>
+    <link rel="stylesheet" href="./styles/base.css">
+    <link rel="stylesheet" href="./styles/theme.css">
+    <link rel="stylesheet" href="./styles/layout.css">
+    <link rel="stylesheet" href="./styles/typography.css">
+    <link rel="stylesheet" href="./styles/animations.css">
 </head>
 <body>
     <div id="boot-screen">
-        <div class="boot-logo">🧭</div>
+        <div class="boot-logo animate-spin-in">🧭</div>
         <div class="boot-title">HERP</div>
         <div class="boot-bar">
             <div class="boot-progress" id="boot-progress"></div>
         </div>
         <div class="boot-status" id="boot-status">جارٍ تحميل النواة...</div>
     </div>
-    <div id="app-root" style="height: 100vh;"></div>
-
+    <div id="app-root"></div>
     <script type="module" src="./boot.js"></script>
 </body>
 </html>
