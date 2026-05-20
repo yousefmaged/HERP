@@ -1,0 +1,9 @@
+{
+  "required": ["storage:read", "storage:write", "events:subscribe"],
+  "provided": ["hr:read", "hr:write", "hr:delete", "hr:payroll:view"],
+  "roles": {
+    "employee": ["hr:read"],
+    "manager": ["hr:read", "hr:write"],
+    "hr_admin": ["hr:read", "hr:write", "hr:delete", "hr:payroll:view"]
+  }
+}
