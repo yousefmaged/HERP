@@ -1,0 +1,8 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #1e1e2e; color: #f0f0f8; font-family: system-ui; }
+#app { display: flex; height: 100vh; }
+.sidebar { width: 260px; background: #13131f; border-left: 1px solid #2a2a3a; padding: 16px; }
+.main { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+#page-title { background: #2a2a3a; border: none; padding: 12px; color: white; border-radius: 12px; }
+#page-content { flex: 1; background: #2a2a3a; border: none; padding: 12px; color: white; border-radius: 12px; resize: none; }
+button { background: #e94560; border: none; color: white; padding: 8px 16px; border-radius: 12px; cursor: pointer; }
