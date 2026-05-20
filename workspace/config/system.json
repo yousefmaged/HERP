@@ -21,5 +21,23 @@
     "sessionTimeoutMinutes": 60,
     "maxLoginAttempts": 5,
     "requireMFA": false
+  },
+  "workspaceLayout": {
+    "files": {
+      "invoices": true,
+      "contracts": true,
+      "projects": true,
+      "knowledge": true,
+      "reports": true,
+      "templates": true,
+      "attachments": true
+    },
+    "backupStrategy": "smart",
+    "snapshotRetention": {
+      "hourly": 24,
+      "daily": 7,
+      "weekly": 4,
+      "monthly": 12
+    }
   }
 }
