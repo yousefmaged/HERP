@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>HERP — نظام تشغيل مؤسسي سيادي</title>
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: linear-gradient(135deg, #080810 0%, #1a1a2e 100%);
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(18,18,24,0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+        }
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .tagline {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            flex: 1;
+            min-width: 200px;
+            border: 1px solid rgba(45,212,191,0.2);
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: #e94560; }
+        .icon { font-size: 3rem; margin-bottom: 1rem; }
+        h3 { font-size: 1.3rem; margin-bottom: 0.5rem; color: #f0f0f8; }
+        p { font-size: 0.8rem; color: #94a3b8; margin-bottom: 1.2rem; }
+        .btn {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #e94560;
+            color: #e94560;
+        }
+        .btn-outline:hover { background: rgba(233,69,96,0.1); }
+        .btn:hover { transform: scale(1.02); }
+        footer {
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: #475569;
+        }
+        a { color: inherit; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>HERP</h1>
+    <div class="tagline">نظام تشغيل مؤسسي سيادي — يعمل محلياً، مجاني للأبد</div>
+
+    <div class="cards">
+        <div class="card">
+            <div class="icon">🚀</div>
+            <h3>تشغيل PWA</h3>
+            <p>استخدم HERP مباشرة في المتصفح — يعمل بدون إنترنت بعد التحميل</p>
+            <button id="launchPwa" class="btn">▶ تشغيل مباشر</button>
+        </div>
+        <div class="card">
+            <div class="icon">💾</div>
+            <h3>سطح المكتب</h3>
+            <p>تطبيق مستقل (Windows/macOS/Linux) — أقصى أداء وخصوصية</p>
+            <div style="display:flex; gap:8px; justify-content:center;">
+                <a href="#" id="win" class="btn-outline btn">Windows</a>
+                <a href="#" id="mac" class="btn-outline btn">macOS</a>
+                <a href="#" id="linux" class="btn-outline btn">Linux</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="icon">☁️</div>
+            <h3>سيرفر خاص</h3>
+            <p>استضافة ذاتية لفريقك — سيادة كاملة</p>
+            <button id="serverGuide" class="btn-outline btn">دليل التثبيت</button>
+        </div>
+    </div>
+
+    <footer>
+        🔓 مفتوح المصدر (MIT) · 🤝 مجاني للأبد · 🧠 ذكاء محلي اختياري
+    </footer>
+</div>
+
+<script>
+    document.getElementById('launchPwa').onclick = () => location.href = './app/index.html';
+    document.getElementById('win').href = '#';
+    document.getElementById('mac').href = '#';
+    document.getElementById('linux').href = '#';
+    document.getElementById('serverGuide').onclick = () => alert('سيتم توفير دليل Docker قريباً');
+</script>
+</body>
+</html>
