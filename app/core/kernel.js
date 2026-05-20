@@ -52,7 +52,21 @@ export class Kernel {
         if (identity) {
             console.log(`[Kernel] مرحباً بعودتك، ${identity.entityName}`);
         }
-        
+        // داخل kernel.js، بعد الـ init
+import { registerSession, permissionMiddleware } from '../permissions/guard.js';
+import { useMiddleware } from '../events/bus.js';
+import { startAlertMonitoring } from './health/index.js';
+import { login } from '../permissions/session-manager.js';
+
+// داخل setupMiddleware أضف:
+useMiddleware(permissionMiddleware);
+
+// داخل init، بعد تحميل الهوية:
+if (identity) {
+    login(identity.userId || 'owner', 'owner', { entityName: identity.entityName });
+}
+// بدء مراقبة الصحة
+startAlertMonitoring();
         // 3. إطلاق حدث جاهزية النظام
         await emit({
             name: EVENT_TYPES.SYSTEM_READY,
