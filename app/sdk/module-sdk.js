@@ -66,7 +66,21 @@ export async function createModuleSDK(moduleId, sourceId) {
                 handler(event);
             });
         },
-        
+        /**
+ * HERP Module SDK — دعم الهيكل المتكامل للوحدات
+ */
+
+export async function loadModuleStructure(moduleId) {
+    const baseUrl = `/modules/${moduleId}/`;
+    const manifest = await fetch(`${baseUrl}manifest.json`).then(r => r.json());
+    const permissions = await fetch(`${baseUrl}permissions.json`).then(r => r.json());
+    const events = await fetch(`${baseUrl}events.json`).then(r => r.json());
+    const routes = await import(`${baseUrl}routes.js`).then(m => m.routes);
+    const commands = await import(`${baseUrl}commands.js`).then(m => m.commands);
+    const hooks = await import(`${baseUrl}hooks.js`).then(m => m.hooks);
+    
+    return { manifest, permissions, events, routes, commands, hooks };
+}
         // الصلاحيات
         async can(permission) {
             return hasPermission(sourceId, permission);
@@ -82,3 +96,4 @@ export async function createModuleSDK(moduleId, sourceId) {
         }
     };
 }
+        
