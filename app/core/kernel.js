@@ -1,42 +1,36 @@
 /**
- * HERP Kernel — النواة المصغرة للنظام
- * 
- * المهام:
- * 1. تحميل وتنسيق المكونات (events, crypto, storage)
- * 2. توفير واجهة موحدة للوحدات
- * 3. إدارة دورة حياة النظام (start, stop)
+ * HERP Kernel — النواة المصغرة (الإصدار النهائي المتكامل)
  */
 
-import { emit, subscribe, useMiddleware } from '../events/bus.js';
+import { emit, useMiddleware } from '../events/bus.js';
 import { EVENT_TYPES } from '../events/event-types.js';
+import { initializeMiddleware } from '../events/middleware.js';
 import { loadMasterKey, hasMasterKey, generateMasterKey } from '../crypto/key-manager.js';
-import { loadEntity, saveEntity } from '../storage/adapters/local.adapter.js';
+import { openDatabase, loadEntity, saveEntity } from '../storage/adapters/local.adapter.js';
+import { registerService, getService, registerModule } from './registry.js';
+import { login, getCurrentSession, logout } from '../permissions/session-manager.js';
+import { startAlertMonitoring } from './health/index.js';
+import { createModuleSDK } from '../sdk/module-sdk.js';
+import { navigateTo } from '../ui/router.js';
+import { setUIState } from '../ui/state.js';
+import { scheduleBackup } from '../../scripts/backup.js';
 
 export class Kernel {
     constructor() {
         this.isReady = false;
-        this.modules = new Map();  // moduleId → module instance
-        this.setupMiddleware();
+        this.modules = new Map();
     }
     
-    /**
-     * إعداد middleware للأمان والتسجيل
-     */
-    setupMiddleware() {
-        useMiddleware(async (event, next) => {
-            console.log(`[Kernel] حدث وارد: ${event.name} من ${event.source || 'unknown'}`);
-            // هنا سيتم إضافة guard.js لفحص الصلاحيات
-            return next(event);
-        });
-    }
-    
-    /**
-     * تهيئة النواة
-     */
     async init() {
-        console.log('[Kernel] بدء تهيئة النواة...');
+        console.log('[Kernel] بدء تهيئة النواة المتكاملة...');
         
-        // 1. التحقق من وجود المفتاح السيادي
+        // 1. تهيئة قاعدة البيانات
+        await openDatabase();
+        
+        // 2. تهيئة الوسائط (guard, audit)
+        initializeMiddleware();
+        
+        // 3. المفتاح السيادي
         let masterKey = null;
         if (hasMasterKey()) {
             masterKey = await loadMasterKey();
@@ -46,28 +40,29 @@ export class Kernel {
             console.log('[Kernel] تم توليد مفتاح سيادي جديد');
         }
         this.masterKey = masterKey;
+        registerService('crypto', { masterKey });
         
-        // 2. استرجاع الهوية (إن وجدت)
+        // 4. استرجاع الهوية
         const identity = await loadEntity('system_identity');
         if (identity) {
-            console.log(`[Kernel] مرحباً بعودتك، ${identity.entityName}`);
+            login(identity.userId || 'owner', identity.role || 'owner', {
+                entityName: identity.entityName
+            });
+            console.log(`[Kernel] مرحباً ${identity.entityName}`);
+        } else {
+            // في أول استخدام، نوجه لشاشة إنشاء الهوية
+            navigateTo('/identity');
         }
-        // داخل kernel.js، بعد الـ init
-import { registerSession, permissionMiddleware } from '../permissions/guard.js';
-import { useMiddleware } from '../events/bus.js';
-import { startAlertMonitoring } from './health/index.js';
-import { login } from '../permissions/session-manager.js';
-
-// داخل setupMiddleware أضف:
-useMiddleware(permissionMiddleware);
-
-// داخل init، بعد تحميل الهوية:
-if (identity) {
-    login(identity.userId || 'owner', 'owner', { entityName: identity.entityName });
-}
-// بدء مراقبة الصحة
-startAlertMonitoring();
-        // 3. إطلاق حدث جاهزية النظام
+        
+        // 5. بدء مراقبة الصحة
+        startAlertMonitoring();
+        
+        // 6. جدولة النسخ الاحتياطي (كل 6 ساعات)
+        setInterval(() => {
+            scheduleBackup().catch(err => console.error('[Backup] فشل النسخ الاحتياطي:', err));
+        }, 6 * 60 * 60 * 1000);
+        
+        // 7. إطلاق حدث الجاهزية
         await emit({
             name: EVENT_TYPES.SYSTEM_READY,
             payload: { version: '0.1.0', timestamp: Date.now() },
@@ -75,38 +70,43 @@ startAlertMonitoring();
         });
         
         this.isReady = true;
-        console.log('[Kernel] النواة جاهزة');
+        setUIState({ isLoading: false });
+        console.log('[Kernel] النواة جاهزة ومتكاملة');
     }
     
-    /**
-     * تسجيل وحدة جديدة
-     * @param {string} moduleId
-     * @param {Object} moduleInstance
-     */
-    registerModule(moduleId, moduleInstance) {
-        this.modules.set(moduleId, moduleInstance);
-        console.log(`[Kernel] تم تسجيل الوحدة: ${moduleId}`);
-    }
-    
-    /**
-     * الحصول على وحدة مسجلة
-     * @param {string} moduleId
-     * @returns {Object|null}
-     */
-    getModule(moduleId) {
-        return this.modules.get(moduleId) || null;
-    }
-    
-    /**
-     * إيقاف النواة (تنظيف)
-     */
     async shutdown() {
         await emit({
             name: EVENT_TYPES.SYSTEM_SHUTDOWN,
             payload: {},
             source: 'kernel'
         });
+        logout();
         this.isReady = false;
         console.log('[Kernel] تم إيقاف النظام');
+    }
+    
+    async installModule(moduleId, moduleUrl, moduleInfo) {
+        try {
+            const response = await fetch(moduleUrl);
+            const code = await response.text();
+            // تخزين الوحدة (سيتم في storage adapter)
+            await saveEntity('module', moduleId, {
+                id: moduleId,
+                name: moduleInfo.name,
+                code,
+                installedAt: Date.now(),
+                enabled: true
+            });
+            registerModule(moduleId, moduleInfo);
+            console.log(`[Kernel] تم تثبيت الوحدة: ${moduleId}`);
+            await emit({
+                name: EVENT_TYPES.MODULE_INSTALLED,
+                payload: { moduleId, name: moduleInfo.name },
+                source: 'kernel'
+            });
+        } catch (err) {
+            console.error(`[Kernel] فشل تثبيت الوحدة ${moduleId}:`, err);
+            throw err;
+        }
     }
 }
