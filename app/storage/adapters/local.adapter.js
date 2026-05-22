@@ -1,149 +1,120 @@
 /**
- * HERP Local Storage Adapter
- * 
- * - IndexedDB للبيانات الهيكلية (كيانات، إعدادات)
- * - File System Access API للملفات الكبيرة (صور، وثائق)
+ * Local Storage Adapter – استخدام File System Access API أو IndexedDB
  */
 
-const DB_NAME = 'herp';
-const DB_VERSION = 1;
-const STORE_NAME = 'entities';
-
-let dbInstance = null;
-
-/**
- * فتح قاعدة البيانات
- * @returns {Promise<IDBDatabase>}
- */
-export async function openDatabase() {
-    if (dbInstance) return dbInstance;
+class LocalStorageAdapter {
+    constructor() {
+        this.rootHandle = null;
+        this.useIndexedDB = false;
+    }
     
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-                store.createIndex('type', 'type', { unique: false });
-                store.createIndex('updatedAt', 'updatedAt', { unique: false });
+    async requestAccess() {
+        if ('showDirectoryPicker' in window) {
+            try {
+                this.rootHandle = await window.showDirectoryPicker();
+                this.useIndexedDB = false;
+                return true;
+            } catch (e) {
+                this.useIndexedDB = true;
+                return false;
             }
-        };
-        
-        request.onsuccess = () => {
-            dbInstance = request.result;
-            resolve(dbInstance);
-        };
-        
-        request.onerror = () => reject(request.error);
-    });
-}
-
-/**
- * حفظ كيان
- * @param {string} type
- * @param {string} id
- * @param {any} data
- */
-export async function saveEntity(type, id, data) {
-    const db = await openDatabase();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    
-    const record = {
-        id,
-        type,
-        data,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-    };
-    
-    return new Promise((resolve, reject) => {
-        const request = store.put(record);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-    });
-}
-
-/**
- * استرجاع كيان
- * @param {string} id
- * @returns {Promise<any|null>}
- */
-export async function loadEntity(id) {
-    const db = await openDatabase();
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const store = tx.objectStore(STORE_NAME);
-    
-    return new Promise((resolve, reject) => {
-        const request = store.get(id);
-        request.onsuccess = () => resolve(request.result?.data || null);
-        request.onerror = () => reject(request.error);
-    });
-}
-
-/**
- * استرجاع جميع الكيانات من نوع معين
- * @param {string} type
- * @returns {Promise<Array>}
- */
-export async function loadEntitiesByType(type) {
-    const db = await openDatabase();
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const index = tx.objectStore(STORE_NAME).index('type');
-    
-    return new Promise((resolve, reject) => {
-        const request = index.getAll(type);
-        request.onsuccess = () => resolve(request.result.map(r => r.data));
-        request.onerror = () => reject(request.error);
-    });
-}
-
-/**
- * حذف كيان
- * @param {string} id
- */
-export async function deleteEntity(id) {
-    const db = await openDatabase();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    
-    return new Promise((resolve, reject) => {
-        const request = store.delete(id);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-    });
-}
-
-/**
- * حفظ ملف (عبر File System Access API — اختياري)
- * @param {File} file
- * @returns {Promise<string>} مسار الملف المحلي
- */
-export async function saveFile(file) {
-    if ('showSaveFilePicker' in window) {
-        try {
-            const handle = await window.showSaveFilePicker({
-                suggestedName: file.name,
-                types: [{
-                    description: file.type,
-                    accept: { [file.type]: ['.' + file.name.split('.').pop()] }
-                }]
-            });
-            const writable = await handle.createWritable();
-            await writable.write(file);
-            await writable.close();
-            return handle.name;
-        } catch (err) {
-            console.warn('[Storage] فشل حفظ الملف عبر File API:', err);
+        } else {
+            this.useIndexedDB = true;
+            return false;
         }
     }
-    // fallback: تخزين في IndexedDB كـ Blob
-    const blobId = `blob_${Date.now()}_${file.name}`;
-    await saveEntity('blob', blobId, {
-        name: file.name,
-        type: file.type,
-        blob: file
-    });
-    return blobId;
+    
+    async readFile(path) {
+        if (this.useIndexedDB) return this._readIndexedDB(path);
+        const handle = await this.rootHandle.getFileHandle(path, { create: false });
+        const file = await handle.getFile();
+        return await file.arrayBuffer();
+    }
+    
+    async writeFile(path, data) {
+        if (this.useIndexedDB) return this._writeIndexedDB(path, data);
+        const handle = await this.rootHandle.getFileHandle(path, { create: true });
+        const writable = await handle.createWritable();
+        await writable.write(data);
+        await writable.close();
+    }
+    
+    async listFiles(path) {
+        if (this.useIndexedDB) return this._listIndexedDB(path);
+        const dir = await this.rootHandle.getDirectoryHandle(path, { create: false });
+        const files = [];
+        for await (const entry of dir.values()) {
+            if (entry.kind === 'file') files.push(entry.name);
+        }
+        return files;
+    }
+    
+    async deleteFile(path) {
+        if (this.useIndexedDB) return this._deleteIndexedDB(path);
+        await this.rootHandle.removeEntry(path);
+    }
+    
+    async createDirectory(path) {
+        if (this.useIndexedDB) return;
+        await this.rootHandle.getDirectoryHandle(path, { create: true });
+    }
+    
+    // IndexedDB fallback (مبسط)
+    async _getDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('HERP_Workspace', 1);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('files')) db.createObjectStore('files');
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+    
+    async _readIndexedDB(path) {
+        const db = await this._getDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readonly');
+            const store = tx.objectStore('files');
+            const req = store.get(path);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => reject(req.error);
+        });
+    }
+    
+    async _writeIndexedDB(path, data) {
+        const db = await this._getDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readwrite');
+            const store = tx.objectStore('files');
+            const req = store.put(data, path);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+        });
+    }
+    
+    async _listIndexedDB(path) {
+        const db = await this._getDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readonly');
+            const store = tx.objectStore('files');
+            const req = store.getAllKeys();
+            req.onsuccess = () => resolve(req.result.filter(k => k.startsWith(path)));
+            req.onerror = () => reject(req.error);
+        });
+    }
+    
+    async _deleteIndexedDB(path) {
+        const db = await this._getDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('files', 'readwrite');
+            const store = tx.objectStore('files');
+            const req = store.delete(path);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+        });
+    }
 }
+
+export default LocalStorageAdapter;
