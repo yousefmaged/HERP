@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المعرفة</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background: #1e1e2e; color: #f0f0f8; font-family: system-ui; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        input, textarea { width: 100%; margin: 10px 0; padding: 10px; background: #2a2a3a; border: none; color: white; border-radius: 8px; }
+        button { background: #e94560; padding: 8px 16px; border: none; border-radius: 8px; color: white; cursor: pointer; }
+        .page-item { background: #2a2a3a; margin: 8px 0; padding: 10px; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>المفكرة الذكية</h2>
+    <div id="pages-list"></div>
+    <button id="new-page">+ صفحة جديدة</button>
+</div>
+<script>
+    (async function() {
+        // الحصول على مرجع للنواة من window (سيتم تعيينه في bootstrap)
+        const kernel = window.parent.herpKernel;
+        if (!kernel) return;
+        const module = kernel.getModule('knowledge');
+        await module.init();
+        
+        async function loadPages() {
+            const pages = await module.listPages();
+            const container = document.getElementById('pages-list');
+            container.innerHTML = pages.map(p => `<div class="page-item" data-id="${p.id}">${p.title}</div>`).join('');
+            document.querySelectorAll('.page-item').forEach(el => {
+                el.addEventListener('click', async () => {
+                    const page = await module.getPage(el.dataset.id);
+                    alert(`محتوى: ${page.content || '(فارغ)'}`);
+                });
+            });
+        }
+        
+        document.getElementById('new-page').onclick = async () => {
+            const title = prompt('عنوان الصفحة');
+            if (title) {
+                await module.createPage(title, '');
+                await loadPages();
+            }
+        };
+        
+        await loadPages();
+    })();
+</script>
+</body>
+</html>
