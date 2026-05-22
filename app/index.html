@@ -3,24 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>HERP — النظام السيادي</title>
-    <link rel="manifest" href="../manifest.json">
-    <link rel="stylesheet" href="./styles/base.css">
-    <link rel="stylesheet" href="./styles/theme.css">
-    <link rel="stylesheet" href="./styles/layout.css">
-    <link rel="stylesheet" href="./styles/typography.css">
-    <link rel="stylesheet" href="./styles/animations.css">
+    <title>HERP Core</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="boot-screen">
-        <div class="boot-logo animate-spin-in">🧭</div>
-        <div class="boot-title">HERP</div>
-        <div class="boot-bar">
-            <div class="boot-progress" id="boot-progress"></div>
+        <div class="boot-logo">🧭</div>
+        <div class="boot-name">HERP</div>
+        <div class="boot-bar-wrap">
+            <div class="boot-bar" id="boot-bar"></div>
         </div>
-        <div class="boot-status" id="boot-status">جارٍ تحميل النواة...</div>
+        <div class="boot-status" id="boot-status">جارٍ التحميل...</div>
     </div>
     <div id="app-root"></div>
-    <script type="module" src="./boot.js"></script>
+    <script type="module" src="./bootstrap.js"></script>
 </body>
 </html>
