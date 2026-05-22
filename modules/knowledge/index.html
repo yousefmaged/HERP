@@ -1,59 +1,30 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>المفكرة الذكية — Scribe</title>
-    <style>
-        /* نفس الأنماط السابقة */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #1e1e2e; color: #f0f0f8; font-family: 'Cairo', system-ui, sans-serif; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        textarea { width: 100%; min-height: 400px; background: #2a2a3a; border: 1px solid #44445a; border-radius: 16px; padding: 16px; color: #f0f0f8; font-family: inherit; font-size: 16px; resize: vertical; }
-        button { background: #e94560; border: none; color: white; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; margin-top: 16px; }
-        .status { font-size: 12px; color: #8888aa; margin-top: 8px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>📝 المفكرة الذكية</h2>
-        <textarea id="note-content" placeholder="اكتب ملاحظاتك هنا..."></textarea>
-        <button id="save-btn">💾 حفظ</button>
-        <div class="status" id="save-status"></div>
-    </div>
-    <script>
-        (async function() {
-            // التواصل مع النواة عبر postMessage لاستقبال SDK
-            let sdk = null;
-            let currentNoteId = 'default_note';
-            
-            // استقبال قناة الاتصال من النواة
-            window.addEventListener('message', async (event) => {
-                if (event.data.type === 'HERP_INIT') {
-                    const port = event.ports[0];
-                    // طلب SDK من النواة
-                    port.postMessage({ type: 'REQUEST_SDK', moduleId: 'scribe' });
-                    port.onmessage = async (e) => {
-                        if (e.data.type === 'SDK_READY') {
-                            sdk = e.data.sdk;
-                            // تحميل المحتوى المحفوظ عبر SDK
-                            const saved = await sdk.load(currentNoteId);
-                            if (saved && saved.content) {
-                                document.getElementById('note-content').value = saved.content;
-                            }
-                        }
-                    };
-                }
-            });
-            
-            document.getElementById('save-btn').addEventListener('click', async () => {
-                if (!sdk) return;
-                const content = document.getElementById('note-content').value;
-                await sdk.save(currentNoteId, { content, updatedAt: Date.now() });
-                const statusDiv = document.getElementById('save-status');
-                statusDiv.textContent = '✓ تم الحفظ';
-                setTimeout(() => { statusDiv.textContent = ''; }, 2000);
-            });
-        })();
-    </script>
-</body>
-</html>
+import kernel from '../../app/core/kernel.js';
+
+const moduleId = 'knowledge';
+const api = {
+    async init() {
+        await kernel.execute(`
+            CREATE TABLE IF NOT EXISTS pages (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                content TEXT,
+                created_at INTEGER
+            )
+        `);
+        console.log('[Knowledge] جاهز');
+    },
+    async createPage(title, content) {
+        const id = `page_${Date.now()}`;
+        await kernel.execute(`INSERT INTO pages (id, title, content, created_at) VALUES (?, ?, ?, ?)`, [id, title, content, Date.now()]);
+        return id;
+    },
+    async listPages() {
+        return kernel.query(`SELECT * FROM pages ORDER BY created_at DESC`);
+    },
+    async getPage(id) {
+        const res = await kernel.query(`SELECT * FROM pages WHERE id = ?`, [id]);
+        return res[0] || null;
+    }
+};
+
+kernel.registerModule(moduleId, api);
