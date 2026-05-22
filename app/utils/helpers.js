@@ -1,40 +1,12 @@
-/**
- * HERP Helpers — دوال مساعدة عامة
- */
-
-export function formatDate(timestamp, locale = 'ar-EG') {
-    return new Date(timestamp).toLocaleDateString(locale);
-}
-
-export function formatDateTime(timestamp, locale = 'ar-EG') {
-    return new Date(timestamp).toLocaleString(locale);
-}
-
 export function generateId(prefix = '') {
-    const random = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
-    return prefix ? `${prefix}_${random}` : random;
+    const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+    return prefix ? `${prefix}_${id}` : id;
 }
 
-export function isValidEmail(email) {
-    const re = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
-    return re.test(email);
+export function formatDate(ts, locale = 'ar-EG') {
+    return new Date(ts).toLocaleDateString(locale);
 }
 
-export function debounce(fn, delay) {
-    let timer;
-    return function(...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn.apply(this, args), delay);
-    };
-}
-
-export function throttle(fn, limit) {
-    let inThrottle;
-    return function(...args) {
-        if (!inThrottle) {
-            fn.apply(this, args);
-            inThrottle = true;
-            setTimeout(() => inThrottle = false, limit);
-        }
-    };
+export function formatCurrency(amount, currency = 'SAR') {
+    return new Intl.NumberFormat('ar-SA', { style: 'currency', currency }).format(amount);
 }
