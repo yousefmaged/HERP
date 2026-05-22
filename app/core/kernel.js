@@ -1,100 +1,79 @@
 /**
- * HERP Kernel — النواة المصغرة للنظام (الإصدار الكامل)
- * المسؤوليات: إدارة الوحدات، توجيه الأحداث، ربط المكونات.
+ * HERP Kernel – النواة المصغرة للنظام
+ * 
+ * إدارة دورة الحياة، تسجيل الوحدات، توفير وصول آمن للتخزين والأحداث.
  */
 
-import { emit, subscribe } from '../events/bus.js';
+import eventBus from '../events/bus.js';
 import { EVENT_TYPES } from '../events/event-types.js';
-import { loadModules, saveModule } from '../storage/adapters/local.adapter.js';
-import { loadModuleStructure } from '../sdk/module-sdk.js';
+import vfs from '../storage/vfs.js';
+import { openDatabase, query, execute, transaction } from '../storage/sqlite.js';
 
-export class Kernel {
+class HERPKernel {
     constructor() {
-        this.modules = new Map();      // moduleId → module info
-        this.isReady = false;
+        this.status = 'initializing';
+        this.modules = new Map();
+        this.db = null;
     }
 
-    /**
-     * تهيئة النواة
-     */
+    setDatabase(db) {
+        this.db = db;
+    }
+
     async init() {
-        console.log('[Kernel] تهيئة النواة...');
-        // تحميل الوحدات المثبتة مسبقاً من قاعدة البيانات
-        const installed = await loadModules();
-        for (const mod of installed) {
-            if (mod.enabled) {
-                this.modules.set(mod.id, mod);
-                console.log(`[Kernel] تم تحميل الوحدة المخزنة: ${mod.name}`);
-            }
-        }
-        this.isReady = true;
-        await emit({ name: EVENT_TYPES.SYSTEM_READY, payload: { version: '0.1.0' }, source: 'kernel' });
-        console.log('[Kernel] النواة جاهزة');
-        return true;
-    }
-
-    /**
-     * تسجيل وحدة جديدة (بعد تثبيتها)
-     * @param {string} moduleId 
-     * @param {object} moduleInfo 
-     */
-    registerModule(moduleId, moduleInfo) {
-        this.modules.set(moduleId, moduleInfo);
-        console.log(`[Kernel] تم تسجيل الوحدة: ${moduleId}`);
-        emit({ name: EVENT_TYPES.MODULE_INSTALLED, payload: moduleInfo, source: 'kernel' }).catch(console.error);
-    }
-
-    /**
-     * تحميل هيكل وحدة من ملفاتها وتثبيتها
-     * @param {string} moduleId 
-     */
-    async registerModuleFromStructure(moduleId) {
+        console.log('[Kernel] بدء التهيئة...');
         try {
-            const structure = await loadModuleStructure(moduleId);
-            const { manifest, permissions, events, routes, commands, hooks } = structure;
-            
-            // حفظ الوحدة في قاعدة البيانات
-            await saveModule({
-                id: moduleId,
-                name: manifest.name,
-                version: manifest.version,
-                enabled: true,
-                installedAt: Date.now(),
-                manifest,
-                permissions,
-                events,
-                routes,
-                commands,
-                hooks
-            });
-            
-            this.registerModule(moduleId, { name: manifest.name, icon: manifest.icon, description: manifest.description });
-            
-            // استدعاء hooks.onLoad إذا وجد
-            if (hooks && hooks.onLoad) {
-                // إنشاء SDK مبسط للوحدة (يمكن توسيعه لاحقاً)
-                const sdk = {
-                    emit: (name, payload) => emit({ name, payload, source: `module:${moduleId}` }),
-                    on: (name, handler) => subscribe(name, handler)
-                };
-                await hooks.onLoad(sdk);
+            // تحقق من إعدادات workspace
+            const hasSettings = await vfs.exists('config/system.json');
+            if (!hasSettings) {
+                const defaultSettings = JSON.stringify({ version: '0.1', theme: 'dark', created: Date.now() });
+                await vfs.writeFile('config/system.json', defaultSettings);
             }
-            return true;
+            
+            this.status = 'ready';
+            await eventBus.emit(EVENT_TYPES.SYSTEM_READY, { status: 'ready' }, { source: 'kernel' });
+            console.log('[Kernel] جاهز');
         } catch (err) {
-            console.error(`[Kernel] فشل تسجيل الوحدة ${moduleId}:`, err);
-            return false;
+            this.status = 'error';
+            await eventBus.emit(EVENT_TYPES.SYSTEM_ERROR, { error: err.message }, { source: 'kernel' });
+            throw err;
         }
     }
 
-    /**
-     * الحصول على قائمة الوحدات المسجلة (للواجهة)
-     */
-    getModules() {
-        return Array.from(this.modules.entries()).map(([id, info]) => ({
-            id,
-            name: info.name,
-            icon: info.icon || '📦',
-            description: info.description || ''
-        }));
+    registerModule(moduleId, api) {
+        if (this.modules.has(moduleId)) {
+            console.warn(`[Kernel] الوحدة ${moduleId} مسجلة مسبقاً، سيتم استبدالها.`);
+        }
+        this.modules.set(moduleId, api);
+        console.log(`[Kernel] تم تسجيل الوحدة: ${moduleId}`);
+        eventBus.emit(EVENT_TYPES.MODULE_INSTALLED, { moduleId }, { source: 'kernel' });
+    }
+
+    getModule(moduleId) {
+        return this.modules.get(moduleId) || null;
+    }
+
+    async query(sql, params = []) {
+        if (this.status !== 'ready') throw new Error('النظام غير جاهز');
+        return query(this.db, sql, params);
+    }
+
+    async execute(sql, params = []) {
+        if (this.status !== 'ready') throw new Error('النظام غير جاهز');
+        return execute(this.db, sql, params);
+    }
+
+    async transaction(callback) {
+        if (this.status !== 'ready') throw new Error('النظام غير جاهز');
+        return transaction(this.db, callback);
+    }
+
+    async shutdown() {
+        this.status = 'shutdown';
+        await eventBus.emit(EVENT_TYPES.SYSTEM_SHUTDOWN, {}, { source: 'kernel' });
+        this.modules.clear();
+        console.log('[Kernel] تم الإيقاف');
     }
 }
+
+export default new HERPKernel();
