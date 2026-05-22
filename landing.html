@@ -1,1028 +1,129 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HERP | نظام تشغيل المؤسسة السيادي</title>
-  <meta name="description" content="منظومة تشغيل سيادية للمؤسسة العربية الناشئة. مجاني للأبد، مفتوح المصدر، بياناتك على جهازك." />
-  <meta name="theme-color" content="#0f172a" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap"
-        rel="stylesheet" media="print" onload="this.media='all'" />
-
-  <style>
-    /* ══════════════════════════════════════
-       المتغيرات البصرية — المستثمر الذكي
-    ══════════════════════════════════════ */
-    :root {
-      --bg:         #0f172a;
-      --bg2:        #1e293b;
-      --bg3:        #0d1424;
-      --surface:    #1e293b;
-      --surface2:   #263347;
-      --border:     rgba(255,255,255,0.08);
-      --border2:    rgba(255,255,255,0.14);
-      --emerald:    #10b981;
-      --emerald-dim:rgba(16,185,129,0.15);
-      --emerald-glow:rgba(16,185,129,0.3);
-      --gold:       #c9a84c;
-      --gold-dim:   rgba(201,168,76,0.12);
-      --red:        #e94560;
-      --text:       #f8fafc;
-      --text2:      #94a3b8;
-      --text3:      #475569;
-      --mono:       'IBM Plex Mono', 'Courier New', monospace;
-      --font:       'Cairo', system-ui, sans-serif;
-      --ease:       cubic-bezier(0.4,0,0.2,1);
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      scroll-behavior: smooth;
-      overflow-x: hidden;
-    }
-
-    body { direction: rtl; }
-
-    /* شبكة خلفية */
-    .grid-bg {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 48px 48px;
-    }
-
-    /* هالات الضوء */
-    .orb {
-      position: fixed; border-radius: 50%;
-      filter: blur(100px); pointer-events: none; z-index: 0;
-    }
-    .orb-1 { width:500px; height:500px; background:rgba(16,185,129,0.07); top:-150px; right:-150px; }
-    .orb-2 { width:400px; height:400px; background:rgba(233,69,96,0.05); bottom:-100px; left:-100px; }
-
-    /* ══════════════════════════════════════
-       شريط التنقل
-    ══════════════════════════════════════ */
-    header {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 5%;
-      background: rgba(15,23,42,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .logo {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 22px; font-weight: 900; letter-spacing: 2px;
-      text-decoration: none; color: var(--text);
-    }
-    .logo-dot { color: var(--emerald); }
-    .logo-badge {
-      font-size: 10px; font-weight: 600;
-      color: var(--gold); background: var(--gold-dim);
-      border: 1px solid rgba(201,168,76,0.2);
-      padding: 2px 8px; border-radius: 100px;
-      font-family: var(--mono); letter-spacing: 0.5px;
-    }
-
-    nav { display: flex; align-items: center; gap: 8px; }
-
-    .nav-link {
-      font-size: 13px; color: var(--text2); text-decoration: none;
-      padding: 7px 14px; border-radius: 8px; transition: all 0.2s;
-    }
-    .nav-link:hover { color: var(--text); background: var(--surface); }
-
-    .btn {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 9px 18px; border-radius: 10px; border: none;
-      font-family: var(--font); font-size: 14px; font-weight: 700;
-      cursor: pointer; text-decoration: none; transition: all 0.2s;
-    }
-    .btn-emerald {
-      background: var(--emerald); color: #fff;
-      box-shadow: 0 4px 16px var(--emerald-dim);
-    }
-    .btn-emerald:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--emerald-glow); }
-
-    .btn-ghost {
-      background: var(--surface); color: var(--text2);
-      border: 1px solid var(--border2);
-    }
-    .btn-ghost:hover { color: var(--text); border-color: var(--emerald); }
-
-    /* ══════════════════════════════════════
-       قسم البطل
-    ══════════════════════════════════════ */
-    .hero {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center;
-      padding: 100px 5% 60px;
-      position: relative; z-index: 1;
-    }
-
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 700;
-      color: var(--emerald); background: var(--emerald-dim);
-      border: 1px solid rgba(16,185,129,0.2);
-      padding: 6px 16px; border-radius: 100px;
-      margin-bottom: 28px; letter-spacing: 0.5px;
-      animation: fade-up 0.5s ease both;
-    }
-    .hero-badge::before {
-      content: ''; width: 6px; height: 6px;
-      background: var(--emerald); border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
-    @keyframes fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes blink   { 50%{opacity:0} }
-
-    .hero h1 {
-      font-size: clamp(40px, 7vw, 80px);
-      font-weight: 900; line-height: 1.1;
-      margin-bottom: 20px; letter-spacing: -0.5px;
-      animation: fade-up 0.5s 0.1s ease both;
-    }
-
-    .hero h1 em { font-style: normal; color: var(--emerald); }
-
-    .hero-sub {
-      font-size: clamp(16px, 2.5vw, 20px);
-      color: var(--text2); max-width: 580px;
-      line-height: 1.75; margin-bottom: 40px;
-      animation: fade-up 0.5s 0.2s ease both;
-    }
-
-    /* أزرار الإجراءات الثلاثة */
-    .hero-actions {
-      display: flex; flex-wrap: wrap; gap: 12px;
-      justify-content: center; margin-bottom: 56px;
-      animation: fade-up 0.5s 0.3s ease both;
-    }
-
-    .action-btn {
-      display: flex; flex-direction: column;
-      align-items: flex-start; gap: 3px;
-      padding: 14px 22px; border-radius: 14px;
-      border: 1px solid var(--border2);
-      background: var(--surface); cursor: pointer;
-      font-family: var(--font); text-decoration: none;
-      transition: all 0.2s; min-width: 180px;
-      position: relative; overflow: hidden;
-    }
-    .action-btn::before {
-      content: ''; position: absolute; inset: 0;
-      opacity: 0; transition: opacity 0.2s; border-radius: inherit;
-    }
-    .action-btn:hover { transform: translateY(-3px); }
-    .action-btn:hover::before { opacity: 1; }
-
-    .action-btn.primary {
-      background: var(--emerald); border-color: var(--emerald);
-      box-shadow: 0 6px 24px var(--emerald-dim);
-    }
-    .action-btn.primary::before { background: linear-gradient(135deg,rgba(255,255,255,0.1),transparent); }
-    .action-btn.primary:hover   { box-shadow: 0 12px 36px var(--emerald-glow); }
-
-    .action-btn-icon  { font-size: 22px; margin-bottom: 4px; }
-    .action-btn-label { font-size: 15px; font-weight: 800; color: var(--text); }
-    .action-btn.primary .action-btn-label { color: #fff; }
-    .action-btn-sub   { font-size: 12px; color: var(--text2); }
-    .action-btn.primary .action-btn-sub { color: rgba(255,255,255,0.75); }
-
-    /* شريط الثقة */
-    .trust {
-      display: flex; flex-wrap: wrap; gap: 20px;
-      justify-content: center;
-      animation: fade-up 0.5s 0.4s ease both;
-    }
-    .trust-item { font-size: 13px; color: var(--text3); display: flex; align-items: center; gap: 6px; }
-    .trust-sep  { width: 3px; height: 3px; background: var(--text3); border-radius: 50%; }
-
-    /* ══════════════════════════════════════
-       نافذة الطرفية
-    ══════════════════════════════════════ */
-    .terminal-wrap {
-      width: 100%; max-width: 720px; margin: 0 auto 80px;
-      animation: fade-up 0.5s 0.35s ease both;
-    }
-
-    .terminal {
-      background: #0a0f1a;
-      border: 1px solid var(--border2);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-    }
-
-    .terminal-bar {
-      display: flex; align-items: center; gap: 7px;
-      padding: 12px 16px;
-      background: rgba(255,255,255,0.03);
-      border-bottom: 1px solid var(--border);
-    }
-    .t-dot { width: 11px; height: 11px; border-radius: 50%; }
-    .t-dot.r { background: #ff5f57; }
-    .t-dot.y { background: #ffbd2e; }
-    .t-dot.g { background: #28ca41; }
-    .t-title { font-size: 12px; color: var(--text3); margin-right: auto; font-family: var(--mono); }
-
-    .terminal-body { padding: 20px; direction: ltr; text-align: left; }
-
-    .t-line {
-      font-family: var(--mono); font-size: 13px;
-      line-height: 2; display: flex; align-items: center; gap: 8px;
-    }
-    .t-prompt { color: var(--emerald); }
-    .t-cmd    { color: var(--text); }
-    .t-out    { color: var(--text2); }
-    .t-green  { color: var(--emerald); }
-    .t-gold   { color: var(--gold); }
-    .t-red    { color: var(--red); }
-
-    .cursor {
-      display: inline-block; width: 8px; height: 16px;
-      background: var(--emerald); animation: blink 1s step-end infinite;
-      vertical-align: middle; margin-right: 2px;
-    }
-
-    /* ══════════════════════════════════════
-       شريط الإحصاء
-    ══════════════════════════════════════ */
-    .stats-bar {
-      position: relative; z-index: 1;
-      display: flex; justify-content: center; flex-wrap: wrap;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-    }
-
-    .stat {
-      flex: 1; min-width: 120px; max-width: 200px;
-      padding: 24px 20px; text-align: center;
-      border-left: 1px solid var(--border);
-    }
-    .stat:last-child { border-left: none; }
-    .stat-num   { font-size: 32px; font-weight: 900; display: block; line-height: 1.1; }
-    .stat-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
-
-    /* ══════════════════════════════════════
-       قسم المحركات
-    ══════════════════════════════════════ */
-    section { position: relative; z-index: 1; padding: 80px 5%; }
-
-    .section-tag {
-      font-family: var(--mono); font-size: 11px; font-weight: 600;
-      color: var(--emerald); letter-spacing: 2px;
-      text-transform: uppercase; display: block; margin-bottom: 12px;
-    }
-
-    .section-title {
-      font-size: clamp(28px, 4vw, 42px); font-weight: 900;
-      line-height: 1.2; margin-bottom: 14px;
-    }
-
-    .section-desc { font-size: 16px; color: var(--text2); line-height: 1.8; max-width: 600px; }
-
-    .engines-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px; margin-top: 48px;
-    }
-
-    .engine-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px; padding: 28px;
-      transition: all 0.25s var(--ease);
-      position: relative; overflow: hidden;
-    }
-    .engine-card::before {
-      content: ''; position: absolute; inset: 0;
-      opacity: 0; transition: opacity 0.25s; border-radius: inherit;
-      background: linear-gradient(135deg, var(--glow-color, transparent), transparent 60%);
-    }
-    .engine-card:hover { transform: translateY(-4px); border-color: var(--border2); }
-    .engine-card:hover::before { opacity: 1; }
-
-    .engine-card[data-color="emerald"] { --glow-color: rgba(16,185,129,0.1); }
-    .engine-card[data-color="gold"]    { --glow-color: rgba(201,168,76,0.1); }
-    .engine-card[data-color="red"]     { --glow-color: rgba(233,69,96,0.1); }
-    .engine-card[data-color="blue"]    { --glow-color: rgba(59,130,246,0.1); }
-
-    .engine-icon { font-size: 32px; margin-bottom: 16px; display: block; }
-    .engine-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
-    .engine-desc  { font-size: 14px; color: var(--text2); line-height: 1.7; }
-
-    /* ══════════════════════════════════════
-       قسم الوحدات
-    ══════════════════════════════════════ */
-    .modules-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-
-    .modules-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px; margin-top: 48px;
-    }
-
-    .module-pill {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 16px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px; font-size: 14px;
-      transition: all 0.2s;
-    }
-    .module-pill:hover { border-color: var(--border2); transform: translateX(-2px); }
-    .module-pill.active { border-color: rgba(16,185,129,0.4); }
-
-    .module-dot {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    }
-    .module-name  { font-weight: 700; flex: 1; }
-    .module-phase {
-      font-family: var(--mono); font-size: 10px;
-      color: var(--text3); padding: 2px 7px;
-      background: var(--surface); border-radius: 5px;
-    }
-
-    /* ══════════════════════════════════════
-       قسم خارطة الطريق
-    ══════════════════════════════════════ */
-    .roadmap {
-      display: flex; flex-direction: column; gap: 0;
-      margin-top: 48px; position: relative;
-    }
-    .roadmap::before {
-      content: ''; position: absolute;
-      right: 18px; top: 0; bottom: 0;
-      width: 1px; background: var(--border);
-    }
-
-    .roadmap-item {
-      display: flex; gap: 20px; padding-bottom: 28px;
-    }
-
-    .r-dot {
-      width: 14px; height: 14px; border-radius: 50%;
-      border: 2px solid var(--border2);
-      background: var(--bg); flex-shrink: 0;
-      margin-top: 3px; position: relative; z-index: 1;
-      transition: all 0.2s;
-    }
-    .roadmap-item.done .r-dot  { background: var(--emerald); border-color: var(--emerald); box-shadow: 0 0 10px var(--emerald-dim); }
-    .roadmap-item.now  .r-dot  { background: var(--red); border-color: var(--red); animation: pulse 1.5s infinite; }
-
-    .r-version { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 4px; }
-    .r-title   { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-    .r-desc    { font-size: 13px; color: var(--text2); }
-
-    .r-badge {
-      font-size: 11px; font-weight: 600;
-      padding: 2px 10px; border-radius: 100px; margin-left: 8px;
-    }
-    .r-done { background: rgba(16,185,129,0.12); color: var(--emerald); }
-    .r-now  { background: rgba(233,69,96,0.12);  color: var(--red); }
-    .r-soon { background: var(--surface); color: var(--text3); }
-
-    /* ══════════════════════════════════════
-       مركز القيادة (Ctrl+K)
-    ══════════════════════════════════════ */
-    #command-center {
-      display: none; position: fixed; inset: 0; z-index: 9999;
-      background: rgba(15,23,42,0.85);
-      backdrop-filter: blur(8px);
-      align-items: flex-start; justify-content: center;
-      padding-top: 12vh;
-    }
-    #command-center.open { display: flex; }
-
-    .cmd-box {
-      background: var(--surface);
-      border: 1px solid var(--emerald);
-      border-radius: 16px; width: 90%; max-width: 580px;
-      overflow: hidden;
-      box-shadow: 0 0 40px rgba(16,185,129,0.12), 0 24px 64px rgba(0,0,0,0.6);
-      animation: fade-up 0.2s ease;
-    }
-
-    .cmd-header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .cmd-search-icon { font-size: 16px; color: var(--text3); }
-
-    .cmd-input {
-      flex: 1; background: none; border: none; outline: none;
-      color: var(--text); font-family: var(--font);
-      font-size: 15px; direction: rtl;
-    }
-    .cmd-input::placeholder { color: var(--text3); }
-
-    .cmd-hint {
-      font-family: var(--mono); font-size: 11px;
-      color: var(--text3); background: var(--bg);
-      padding: 3px 8px; border-radius: 5px;
-      border: 1px solid var(--border);
-    }
-
-    .cmd-results { list-style: none; padding: 8px; }
-    .cmd-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 11px 14px; border-radius: 10px;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .cmd-item:hover, .cmd-item.selected {
-      background: var(--emerald-dim); color: var(--text);
-    }
-    .cmd-item-icon  { font-size: 18px; width: 28px; flex-shrink: 0; }
-    .cmd-item-label { font-size: 14px; flex: 1; }
-    .cmd-item-shortcut {
-      font-family: var(--mono); font-size: 11px; color: var(--text3);
-    }
-
-    .cmd-footer {
-      padding: 10px 16px;
-      border-top: 1px solid var(--border);
-      display: flex; gap: 16px;
-      font-family: var(--mono); font-size: 11px; color: var(--text3);
-    }
-    .cmd-key {
-      background: var(--bg); border: 1px solid var(--border);
-      padding: 2px 6px; border-radius: 4px; color: var(--text2);
-    }
-
-    /* تلميح لوحة المفاتيح */
-    .kbd-hint {
-      position: fixed; bottom: 20px; left: 20px;
-      background: rgba(30,41,59,0.9); backdrop-filter: blur(8px);
-      border: 1px solid var(--border2); border-radius: 10px;
-      padding: 10px 14px; font-size: 12px; color: var(--text2);
-      z-index: 50; animation: fade-up 1s 2s ease both;
-      pointer-events: none;
-    }
-    .kbd {
-      background: var(--bg); border: 1px solid var(--border);
-      padding: 2px 7px; border-radius: 5px;
-      font-family: var(--mono); font-size: 11px; color: var(--text);
-    }
-
-    /* ══════════════════════════════════════
-       الفوتر
-    ══════════════════════════════════════ */
-    footer {
-      position: relative; z-index: 1;
-      border-top: 1px solid var(--border);
-      padding: 40px 5%; text-align: center;
-    }
-
-    .footer-logo { font-size: 28px; font-weight: 900; letter-spacing: 3px; margin-bottom: 8px; }
-    .footer-tagline { font-size: 14px; color: var(--text2); margin-bottom: 24px; }
-
-    .footer-links {
-      display: flex; justify-content: center;
-      gap: 20px; flex-wrap: wrap; margin-bottom: 20px;
-    }
-    .footer-link {
-      font-size: 13px; color: var(--text3); text-decoration: none; transition: color 0.2s;
-    }
-    .footer-link:hover { color: var(--text2); }
-
-    .footer-copy { font-size: 12px; color: var(--text3); }
-
-    /* ══════════════════════════════════════
-       استجابة الشاشات الصغيرة
-    ══════════════════════════════════════ */
-    @media (max-width: 640px) {
-      nav .nav-link { display: none; }
-      .hero-actions { flex-direction: column; align-items: stretch; }
-      .action-btn   { min-width: unset; }
-      .stats-bar    { flex-wrap: wrap; }
-      .stat         { min-width: 45%; border-left: none; border-bottom: 1px solid var(--border); }
-      .roadmap::before { right: 16px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>HERP | نظام تشغيل مؤسسي سيادي</title>
+    <meta name="description" content="نظام تشغيل سيادي للمؤسسات – يعمل محلياً، مجاني للأبد، مفتوح المصدر.">
+    <meta name="theme-color" content="#080810">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            font-family: 'Segoe UI', 'Cairo', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(18,18,24,0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+        }
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .tagline {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            flex: 1;
+            min-width: 200px;
+            border: 1px solid rgba(45,212,191,0.2);
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: #e94560; }
+        .icon { font-size: 3rem; margin-bottom: 1rem; }
+        h3 { font-size: 1.3rem; margin-bottom: 0.5rem; color: #f0f0f8; }
+        p { font-size: 0.8rem; color: #94a3b8; margin-bottom: 1.2rem; }
+        .btn {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #e94560;
+            color: #e94560;
+        }
+        .btn-outline:hover { background: rgba(233,69,96,0.1); }
+        .btn:hover { transform: scale(1.02); }
+        footer {
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: #475569;
+        }
+        a { color: inherit; text-decoration: none; }
+    </style>
 </head>
 <body>
-
-<!-- الخلفية -->
-<div class="grid-bg"></div>
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-
-<!-- ══════════════════════════════════════
-     الشريط العلوي
-══════════════════════════════════════ -->
-<header>
-  <a href="#" class="logo">
-    🧭 HERP<span class="logo-dot">.</span>
-    <span class="logo-badge">v0.1</span>
-  </a>
-
-  <nav>
-    <a href="#محركات" class="nav-link">المحركات</a>
-    <a href="#وحدات" class="nav-link">الوحدات</a>
-    <a href="#طريق" class="nav-link">خارطة الطريق</a>
-    <a href="https://github.com/yousefmaged/HERP" target="_blank" rel="noopener" class="btn btn-ghost">🐙 GitHub</a>
-  </nav>
-</header>
-
-<!-- ══════════════════════════════════════
-     قسم البطل
-══════════════════════════════════════ -->
-<div class="hero">
-  <div class="hero-badge">نظام تشغيل المؤسسة السيادي</div>
-
-  <h1>
-    ليس مجرد برنامج إداري<br/>
-    بل <em>نظام تشغيل</em> تملكه بالكامل
-  </h1>
-
-  <p class="hero-sub">
-    عمق الأنظمة المؤسسية العملاقة، بخفة وسرعة أدوات المطورين.
-    بياناتك على جهازك، تعمل بدون إنترنت، مجاني للأبد.
-  </p>
-
-  <!-- الأزرار الثلاثة -->
-  <div class="hero-actions">
-    <a href="./app/index.html" class="action-btn primary">
-      <span class="action-btn-icon">🌐</span>
-      <span class="action-btn-label">شغّل في المتصفح</span>
-      <span class="action-btn-sub">PWA · بدون تثبيت</span>
-    </a>
-
-    <a href="https://github.com/yousefmaged/HERP/releases" target="_blank" class="action-btn">
-      <span class="action-btn-icon">💻</span>
-      <span class="action-btn-label">نزّل على جهازك</span>
-      <span class="action-btn-sub">Windows · Mac · Linux</span>
-    </a>
-
-    <a href="#تثبيت-سيرفر" class="action-btn">
-      <span class="action-btn-icon">🖥️</span>
-      <span class="action-btn-label">ثبّت على سيرفرك</span>
-      <span class="action-btn-sub">Docker · سطر واحد</span>
-    </a>
-  </div>
-
-  <!-- شريط الثقة -->
-  <div class="trust">
-    <span class="trust-item">🔒 بياناتك على جهازك</span>
-    <span class="trust-sep"></span>
-    <span class="trust-item">⚡ 60 ثانية للتثبيت</span>
-    <span class="trust-sep"></span>
-    <span class="trust-item">📄 MIT مفتوح المصدر</span>
-    <span class="trust-sep"></span>
-    <span class="trust-item">🌐 يعمل بدون إنترنت</span>
-  </div>
+<div class="container">
+    <h1>HERP</h1>
+    <div class="tagline">نظام تشغيل مؤسسي سيادي — يعمل محلياً، مجاني للأبد</div>
+    <div class="cards">
+        <div class="card">
+            <div class="icon">🚀</div>
+            <h3>تشغيل PWA</h3>
+            <p>استخدم HERP مباشرة في المتصفح — يعمل بدون إنترنت بعد التحميل</p>
+            <button id="launchPwa" class="btn">▶ تشغيل مباشر</button>
+        </div>
+        <div class="card">
+            <div class="icon">💾</div>
+            <h3>سطح المكتب</h3>
+            <p>تطبيق مستقل (Windows/macOS/Linux) — أقصى أداء وخصوصية</p>
+            <div style="display:flex; gap:8px; justify-content:center;">
+                <a href="#" id="win" class="btn-outline btn">Windows</a>
+                <a href="#" id="mac" class="btn-outline btn">macOS</a>
+                <a href="#" id="linux" class="btn-outline btn">Linux</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="icon">☁️</div>
+            <h3>سيرفر خاص</h3>
+            <p>استضافة ذاتية لفريقك — سيادة كاملة</p>
+            <button id="serverGuide" class="btn-outline btn">دليل التثبيت</button>
+        </div>
+    </div>
+    <footer>
+        🔓 مفتوح المصدر (MIT) · 🤝 مجاني للأبد · 🧠 ذكاء محلي اختياري
+    </footer>
 </div>
-
-<!-- ══════════════════════════════════════
-     نافذة الطرفية
-══════════════════════════════════════ -->
-<div style="position:relative;z-index:1;padding:0 5% 80px;display:flex;justify-content:center">
-  <div class="terminal-wrap">
-    <div class="terminal">
-      <div class="terminal-bar">
-        <div class="t-dot r"></div>
-        <div class="t-dot y"></div>
-        <div class="t-dot g"></div>
-        <span class="t-title">herp — نظام التشغيل السيادي</span>
-      </div>
-      <div class="terminal-body" id="terminal-body">
-        <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd" id="t-cmd"> </span><span class="cursor"></span></div>
-        <div class="t-line"><span class="t-out" id="t-out1"></span></div>
-        <div class="t-line"><span class="t-green" id="t-out2"></span></div>
-        <div class="t-line"><span class="t-gold"  id="t-out3"></span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     شريط الإحصاء
-══════════════════════════════════════ -->
-<div class="stats-bar">
-  <div class="stat">
-    <span class="stat-num" style="color:var(--emerald)">0</span>
-    <span class="stat-label">تتبع أو إعلانات</span>
-  </div>
-  <div class="stat">
-    <span class="stat-num">∞</span>
-    <span class="stat-label">مجاني للأبد</span>
-  </div>
-  <div class="stat">
-    <span class="stat-num" style="color:var(--emerald)">60s</span>
-    <span class="stat-label">وقت التثبيت</span>
-  </div>
-  <div class="stat">
-    <span class="stat-num" style="color:var(--gold)">MIT</span>
-    <span class="stat-label">رخصة مفتوحة</span>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     المحركات
-══════════════════════════════════════ -->
-<section id="محركات">
-  <div style="max-width:1100px;margin:0 auto">
-    <span class="section-tag">// المحركات الداخلية</span>
-    <h2 class="section-title">محركات صلبة، لا مجرد شاشات</h2>
-    <p class="section-desc">الأنظمة العظيمة تُبنى بصلابة محركاتها لا بكثرة أزرارها. قوة SAP بخفة VS Code.</p>
-
-    <div class="engines-grid">
-      <div class="engine-card" data-color="emerald">
-        <span class="engine-icon">🗄️</span>
-        <div class="engine-title">التخزين الفيزيائي السيادي</div>
-        <p class="engine-desc">بياناتك ليست رهينة في سحابة خارجية. مؤسستك كاملة — قواعد بيانات، ملفات، إعدادات — في مجلد محلي مشفر يمكنك نقله على USB أو سيرفرك الخاص.</p>
-      </div>
-
-      <div class="engine-card" data-color="gold">
-        <span class="engine-icon">⚡</span>
-        <div class="engine-title">محرك سير العمل الآلي</div>
-        <p class="engine-desc">آلة حالات دقيقة تدير دورة حياة مستنداتك وانتقالها بين الصلاحيات والموافقات بشكل آلي — بدون فوضى، بدون تأخير.</p>
-      </div>
-
-      <div class="engine-card" data-color="blue">
-        <span class="engine-icon">🧠</span>
-        <div class="engine-title">الذاكرة المؤسسية المدمجة</div>
-        <p class="engine-desc">ربط مباشر بين كل قرار مالي وتاريخه الفكري. السياسات والفواتير والأبحاث تعيش معاً في شبكة كيانات مترابطة لا تُمحى.</p>
-      </div>
-
-      <div class="engine-card" data-color="red">
-        <span class="engine-icon">🤖</span>
-        <div class="engine-title">الوكلاء الإدراكيون المحليون</div>
-        <p class="engine-desc">مساعدون رقميون يعملون على جهازك فقط. يحللون، يقترحون، ينفذون — دون أن تغادر بياناتك حدود مؤسستك.</p>
-      </div>
-
-      <div class="engine-card" data-color="emerald">
-        <span class="engine-icon">🔒</span>
-        <div class="engine-title">نظام انعدام الثقة</div>
-        <p class="engine-desc">كل عملية تُتحقق منها محلياً. لا ثقة افتراضية لأي طرف. مفاتيح التشفير AES-256 يملكها المستخدم وحده.</p>
-      </div>
-
-      <div class="engine-card" data-color="gold">
-        <span class="engine-icon">🧩</span>
-        <div class="engine-title">وحدات معزولة قابلة للتوسع</div>
-        <p class="engine-desc">كل وحدة تطبيق مستقل يعمل في بيئة معزولة. فعّل ما تحتاجه فقط — لا ترهل، لا أكواد زائدة تُثقل النظام.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     الوحدات
-══════════════════════════════════════ -->
-<section class="modules-section" id="وحدات">
-  <div style="max-width:1100px;margin:0 auto">
-    <span class="section-tag">// الوحدات الوظيفية</span>
-    <h2 class="section-title">كل وحدة تطبيق مستقل</h2>
-    <p class="section-desc">فعّل ما تحتاجه الآن — وأضف المزيد عندما تنمو. لا تدفع ثمن ما لا تستخدمه.</p>
-
-    <div class="modules-grid">
-      <div class="module-pill active">
-        <div class="module-dot" style="background:#8B5CF6"></div>
-        <span class="module-name">المفكرة الذكية</span>
-        <span class="module-phase" style="color:#8B5CF6">v0.2</span>
-      </div>
-      <div class="module-pill active">
-        <div class="module-dot" style="background:#10B981"></div>
-        <span class="module-name">دفتر المالية</span>
-        <span class="module-phase" style="color:#10B981">v1.0</span>
-      </div>
-      <div class="module-pill active">
-        <div class="module-dot" style="background:#F59E0B"></div>
-        <span class="module-name">إدارة المشاريع</span>
-        <span class="module-phase" style="color:#F59E0B">v1.0</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#F97316"></div>
-        <span class="module-name">إدارة العملاء</span>
-        <span class="module-phase">v1.5</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#06B6D4"></div>
-        <span class="module-name">إدارة الفريق</span>
-        <span class="module-phase">v1.5</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#84CC16"></div>
-        <span class="module-name">إدارة المخزون</span>
-        <span class="module-phase">v2.0</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#3B82F6"></div>
-        <span class="module-name">المبيعات والفواتير</span>
-        <span class="module-phase">v2.0</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#EC4899"></div>
-        <span class="module-name">التواصل الداخلي</span>
-        <span class="module-phase">v2.0</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#8B5CF6"></div>
-        <span class="module-name">الوكلاء الإدراكيون</span>
-        <span class="module-phase">v2.5</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#C9A84C"></div>
-        <span class="module-name">التحليلات والتقارير</span>
-        <span class="module-phase">v3.0</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#10B981"></div>
-        <span class="module-name">التكاملات الخارجية</span>
-        <span class="module-phase">v3.0</span>
-      </div>
-      <div class="module-pill">
-        <div class="module-dot" style="background:#475569"></div>
-        <span class="module-name">متجر الإضافات</span>
-        <span class="module-phase">v4.0</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     تثبيت السيرفر
-══════════════════════════════════════ -->
-<section id="تثبيت-سيرفر">
-  <div style="max-width:1100px;margin:0 auto">
-    <span class="section-tag">// التثبيت</span>
-    <h2 class="section-title">ثلاث طرق — نقرة واحدة في كل منها</h2>
-    <p class="section-desc">سواء كنت تفتح متصفحاً أو تثبت على حاسوبك أو سيرفر شركتك الخاص.</p>
-
-    <div class="engines-grid" style="margin-top:48px">
-
-      <div class="engine-card" data-color="emerald" style="border-color:rgba(16,185,129,0.3)">
-        <span class="engine-icon">🌐</span>
-        <div class="engine-title">المتصفح (تطبيق ويب)</div>
-        <p class="engine-desc" style="margin-bottom:20px">افتح الرابط وابدأ. يعمل أوفلاين بعد أول زيارة. لا تثبيت، لا إعداد.</p>
-        <a href="./app/index.html" class="btn btn-emerald" style="width:100%;justify-content:center">شغّل الآن ←</a>
-      </div>
-
-      <div class="engine-card" data-color="blue">
-        <span class="engine-icon">💻</span>
-        <div class="engine-title">الجهاز الشخصي</div>
-        <p class="engine-desc" style="margin-bottom:20px">تطبيق خفيف يعمل على Windows و Mac و Linux بدون إنترنت.</p>
-        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;color:#10b981;direction:ltr;margin-bottom:14px">
-          gh release download --latest
-        </div>
-        <a href="https://github.com/yousefmaged/HERP/releases" target="_blank" class="btn btn-ghost" style="width:100%;justify-content:center">الإصدارات ↓</a>
-      </div>
-
-      <div class="engine-card" data-color="gold">
-        <span class="engine-icon">🖥️</span>
-        <div class="engine-title">سيرفر الشركة (Docker)</div>
-        <p class="engine-desc" style="margin-bottom:20px">أمر واحد يُشغّل النظام على سيرفرك الخاص. بياناتك لا تغادر شبكتك.</p>
-        <div style="background:#0a0f1a;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:#10b981;direction:ltr;line-height:2;margin-bottom:14px">
-          docker run -d \<br/>
-          &nbsp;&nbsp;--name herp \<br/>
-          &nbsp;&nbsp;-p 3000:3000 \<br/>
-          &nbsp;&nbsp;-v herp_data:/data \<br/>
-          &nbsp;&nbsp;ghcr.io/yousefmaged/herp:latest
-        </div>
-        <a href="https://github.com/yousefmaged/HERP#self-hosting" target="_blank" class="btn btn-ghost" style="width:100%;justify-content:center">توثيق السيرفر ←</a>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     خارطة الطريق
-══════════════════════════════════════ -->
-<section style="background:var(--surface);border-top:1px solid var(--border)" id="طريق">
-  <div style="max-width:700px;margin:0 auto">
-    <span class="section-tag">// خارطة الطريق</span>
-    <h2 class="section-title">من أين نحن وإلى أين</h2>
-
-    <div class="roadmap">
-      <div class="roadmap-item done">
-        <div class="r-dot"></div>
-        <div>
-          <div class="r-version">v0.1</div>
-          <div class="r-title"><span class="r-badge r-done">مكتمل ✓</span>النواة الأساسية</div>
-          <div class="r-desc">بوابة الهوية، شاشة المربعات، التكاملات، صفحة التعريف، نشر GitHub Pages</div>
-        </div>
-      </div>
-
-      <div class="roadmap-item now">
-        <div class="r-dot"></div>
-        <div>
-          <div class="r-version">v0.2</div>
-          <div class="r-title"><span class="r-badge r-now">جارٍ الآن ●</span>المفكرة الذكية</div>
-          <div class="r-desc">محرر بلوكات عربي كامل، حفظ محلي، تصدير Markdown، أوامر الشرطة السريعة</div>
-        </div>
-      </div>
-
-      <div class="roadmap-item">
-        <div class="r-dot"></div>
-        <div>
-          <div class="r-version">v1.0</div>
-          <div class="r-title"><span class="r-badge r-soon">قريباً</span>دفتر المالية + المشاريع</div>
-          <div class="r-desc">تتبع الإيرادات والمصاريف، فواتير، إدارة المهام والمواعيد</div>
-        </div>
-      </div>
-
-      <div class="roadmap-item">
-        <div class="r-dot"></div>
-        <div>
-          <div class="r-version">v1.5</div>
-          <div class="r-title"><span class="r-badge r-soon">قريباً</span>إدارة العملاء والفريق</div>
-          <div class="r-desc">قاعدة عملاء، متابعة فرص، إدارة الأعضاء، نظام الدعوات</div>
-        </div>
-      </div>
-
-      <div class="roadmap-item">
-        <div class="r-dot"></div>
-        <div>
-          <div class="r-version">v2.5</div>
-          <div class="r-title"><span class="r-badge r-soon">مستقبل</span>الوكلاء الإدراكيون</div>
-          <div class="r-desc">ذكاء اصطناعي يعمل محلياً على جهازك — لا بيانات تغادر</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     الفوتر
-══════════════════════════════════════ -->
-<footer>
-  <div class="footer-logo">🧭 HERP</div>
-  <div class="footer-tagline">شريكك الرقمي قبل الشريك البشري</div>
-  <div class="footer-links">
-    <a href="https://github.com/yousefmaged/HERP" target="_blank" class="footer-link">GitHub</a>
-    <a href="https://github.com/yousefmaged/HERP/releases" target="_blank" class="footer-link">الإصدارات</a>
-    <a href="https://github.com/yousefmaged/HERP/issues" target="_blank" class="footer-link">إبلاغ عن مشكلة</a>
-    <a href="https://github.com/yousefmaged/HERP/blob/main/LICENSE" target="_blank" class="footer-link">MIT License</a>
-  </div>
-  <div class="footer-copy">مجاني للأبد · لا تتبع · لا إعلانات · لا بيع بيانات</div>
-</footer>
-
-<!-- مركز القيادة -->
-<div id="command-center">
-  <div class="cmd-box">
-    <div class="cmd-header">
-      <span class="cmd-search-icon">🔍</span>
-      <input type="text" class="cmd-input" id="cmd-input" placeholder="ماذا تريد أن تفعل؟" autofocus />
-      <span class="cmd-hint">ESC للإغلاق</span>
-    </div>
-    <ul class="cmd-results" id="cmd-results">
-      <li class="cmd-item selected" data-href="./app/index.html">
-        <span class="cmd-item-icon">🌐</span>
-        <span class="cmd-item-label">شغّل النظام في المتصفح</span>
-        <span class="cmd-item-shortcut">Enter</span>
-      </li>
-      <li class="cmd-item" data-href="https://github.com/yousefmaged/HERP">
-        <span class="cmd-item-icon">🐙</span>
-        <span class="cmd-item-label">فتح مستودع GitHub</span>
-      </li>
-      <li class="cmd-item" data-href="https://github.com/yousefmaged/HERP/releases">
-        <span class="cmd-item-icon">💻</span>
-        <span class="cmd-item-label">تنزيل النظام على جهازك</span>
-      </li>
-      <li class="cmd-item" data-href="#تثبيت-سيرفر">
-        <span class="cmd-item-icon">🖥️</span>
-        <span class="cmd-item-label">تثبيت على سيرفر الشركة</span>
-      </li>
-      <li class="cmd-item" data-href="https://github.com/yousefmaged/HERP/blob/main/SPEC.md">
-        <span class="cmd-item-icon">📋</span>
-        <span class="cmd-item-label">قراءة المواصفات التقنية</span>
-      </li>
-    </ul>
-    <div class="cmd-footer">
-      <span><span class="cmd-key">↑↓</span> للتنقل</span>
-      <span><span class="cmd-key">Enter</span> للتنفيذ</span>
-      <span><span class="cmd-key">ESC</span> للإغلاق</span>
-    </div>
-  </div>
-</div>
-
-<!-- تلميح لوحة المفاتيح -->
-<div class="kbd-hint">
-  جرّب <span class="kbd">Ctrl</span> + <span class="kbd">K</span>
-</div>
-
 <script>
-// ══════════════════════════════════════
-// تأثير الطرفية
-// ══════════════════════════════════════
-const frames = [
-  { cmd: 'herp init --sovereign', out1: '> جارٍ توليد المفاتيح السيادية...', out2: '✓ تشفير AES-256 مفعّل', out3: '⚡ المؤسسة جاهزة.' },
-  { cmd: 'herp module enable مفكرة', out1: '> تحميل وحدة المفكرة الذكية...', out2: '✓ محرر البلوكات العربي جاهز', out3: '📝 ابدأ الكتابة الآن.' },
-  { cmd: 'herp status --local-only', out1: '> فحص الحالة...', out2: '✓ جميع البيانات محلية آمنة', out3: '🔒 لا اتصالات خارجية.' },
-  { cmd: 'herp agent start --offline', out1: '> تشغيل الوكيل الإدراكي محلياً...', out2: '✓ النموذج المحلي يعمل', out3: '🤖 الذكاء بدون إنترنت.' },
-];
-
-let fi = 0;
-const tCmd  = document.getElementById('t-cmd');
-const tOut1 = document.getElementById('t-out1');
-const tOut2 = document.getElementById('t-out2');
-const tOut3 = document.getElementById('t-out3');
-
-function runFrame() {
-  const f = frames[fi % frames.length];
-  tCmd.textContent  = ' ' + f.cmd;
-  tOut1.textContent = '';
-  tOut2.textContent = '';
-  tOut3.textContent = '';
-  setTimeout(() => { tOut1.textContent = f.out1; }, 400);
-  setTimeout(() => { tOut2.textContent = f.out2; }, 900);
-  setTimeout(() => { tOut3.textContent = f.out3; }, 1400);
-  fi++;
-}
-
-runFrame();
-setInterval(runFrame, 4000);
-
-// ══════════════════════════════════════
-// مركز القيادة
-// ══════════════════════════════════════
-const cc      = document.getElementById('command-center');
-const cmdInput= document.getElementById('cmd-input');
-const items   = document.querySelectorAll('.cmd-item');
-let selectedIdx = 0;
-
-function openCmd() {
-  cc.classList.add('open');
-  cmdInput.focus();
-  cmdInput.value = '';
-}
-
-function closeCmd() {
-  cc.classList.remove('open');
-}
-
-function selectItem(idx) {
-  items.forEach((el, i) => el.classList.toggle('selected', i === idx));
-  selectedIdx = idx;
-}
-
-function executeSelected() {
-  const item = items[selectedIdx];
-  const href = item?.dataset.href;
-  if (!href) return;
-  if (href.startsWith('#')) {
-    const el = document.querySelector(href);
-    if (el) { el.scrollIntoView({ behavior: 'smooth' }); }
-  } else if (href.startsWith('http')) {
-    window.open(href, '_blank');
-  } else {
-    window.location.href = href;
-  }
-  closeCmd();
-}
-
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-    e.preventDefault();
-    cc.classList.contains('open') ? closeCmd() : openCmd();
-    return;
-  }
-  if (!cc.classList.contains('open')) return;
-  if (e.key === 'Escape')    { closeCmd(); return; }
-  if (e.key === 'ArrowDown') { e.preventDefault(); selectItem((selectedIdx + 1) % items.length); }
-  if (e.key === 'ArrowUp')   { e.preventDefault(); selectItem((selectedIdx - 1 + items.length) % items.length); }
-  if (e.key === 'Enter')     { e.preventDefault(); executeSelected(); }
-});
-
-items.forEach((el, i) => {
-  el.addEventListener('click', () => { selectItem(i); executeSelected(); });
-  el.addEventListener('mouseover', () => selectItem(i));
-});
-
-cc.addEventListener('click', e => { if (e.target === cc) closeCmd(); });
-
-// ══════════════════════════════════════
-// تأثير الدخول التدريجي
-// ══════════════════════════════════════
-const observer = new IntersectionObserver(
-  entries => entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.animation = 'fade-up 0.4s ease both';
-      observer.unobserve(e.target);
-    }
-  }),
-  { threshold: 0.1 }
-);
-document.querySelectorAll('.engine-card, .module-pill, .roadmap-item')
-  .forEach(el => observer.observe(el));
+    document.getElementById('launchPwa').onclick = () => location.href = './app/index.html';
+    document.getElementById('win').href = 'https://github.com/yousefmaged/HERP/releases/latest/herp-win.exe';
+    document.getElementById('mac').href = 'https://github.com/yousefmaged/HERP/releases/latest/herp-macos.dmg';
+    document.getElementById('linux').href = 'https://github.com/yousefmaged/HERP/releases/latest/herp-linux.AppImage';
+    document.getElementById('serverGuide').onclick = () => alert('سيتم توفير دليل Docker قريباً');
 </script>
-
 </body>
 </html>
