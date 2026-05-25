@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>المالية</title>
+    <style>
+        body { background: #1e1e2e; color: #f0f0f8; font-family: system-ui; padding: 20px; }
+        input, button { margin: 8px; padding: 8px; border-radius: 8px; }
+        button { background: #e94560; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div>
+    <h2>الفواتير</h2>
+    <div id="invoices-list"></div>
+    <input type="text" id="inv-title" placeholder="عنوان الفاتورة">
+    <input type="number" id="inv-amount" placeholder="المبلغ">
+    <button id="create-inv">إنشاء فاتورة</button>
+</div>
+<script>
+    (async function() {
+        const kernel = window.parent.herpKernel;
+        if (!kernel) return;
+        const module = kernel.getModule('finance');
+        await module.init();
+        
+        async function load() {
+            const invoices = await module.listInvoices();
+            const div = document.getElementById('invoices-list');
+            div.innerHTML = invoices.map(i => `<div>${i.title} - ${i.amount} ريال (${i.status})</div>`).join('');
+        }
+        
+        document.getElementById('create-inv').onclick = async () => {
+            const title = document.getElementById('inv-title').value;
+            const amount = parseFloat(document.getElementById('inv-amount').value);
+            if (title && amount) {
+                await module.createInvoice(title, amount);
+                await load();
+            }
+        };
+        await load();
+    })();
+</script>
+</body>
+</html>
