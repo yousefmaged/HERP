@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  herp:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./workspace:/workspace
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
