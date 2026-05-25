@@ -1,0 +1,9 @@
+{
+  "id": "finance",
+  "name": "المالية",
+  "version": "0.1.0",
+  "icon": "💰",
+  "color": "#10B981",
+  "permissions": ["storage:read", "storage:write"],
+  "entrypoint": "ui/dashboard.html"
+}
