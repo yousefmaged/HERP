@@ -1,125 +1,27 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المالية</title>
-    <style>
-        body { background: #1e1e2e; color: #f0f0f8; font-family: 'Cairo', system-ui, sans-serif; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .balance { background: #2a2a3a; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px; }
-        .balance h3 { margin: 0; color: #8888aa; }
-        .balance .amount { font-size: 32px; font-weight: bold; color: #10B981; }
-        .transaction-list { list-style: none; padding: 0; }
-        .transaction-list li { background: #2a2a3a; margin: 8px 0; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; }
-        .credit { color: #10B981; }
-        .debit { color: #e94560; }
-        form { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
-        input, select, button { padding: 10px; border-radius: 12px; border: none; background: #2a2a3a; color: white; }
-        button { background: #e94560; cursor: pointer; }
-        button:hover { background: #c5314a; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>💰 المالية</h2>
-    <div class="balance">
-        <h3>الرصيد الحالي</h3>
-        <div class="amount" id="balance-amount">0.00</div>
-    </div>
+import kernel from '../../app/core/kernel.js';
 
-    <form id="transaction-form">
-        <input type="text" id="desc" placeholder="الوصف" required>
-        <input type="number" id="amount" step="0.01" placeholder="المبلغ" required>
-        <select id="type">
-            <option value="credit">إيداع</option>
-            <option value="debit">سحب</option>
-        </select>
-        <button type="submit">تسجيل</button>
-    </form>
+const moduleId = 'finance';
+const api = {
+    async init() {
+        await kernel.execute(`
+            CREATE TABLE IF NOT EXISTS invoices (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                amount REAL,
+                status TEXT DEFAULT 'pending',
+                created_at INTEGER
+            )
+        `);
+        console.log('[Finance] جاهز');
+    },
+    async createInvoice(title, amount) {
+        const id = `inv_${Date.now()}`;
+        await kernel.execute(`INSERT INTO invoices (id, title, amount, created_at) VALUES (?, ?, ?, ?)`, [id, title, amount, Date.now()]);
+        return id;
+    },
+    async listInvoices() {
+        return kernel.query(`SELECT * FROM invoices ORDER BY created_at DESC`);
+    }
+};
 
-    <h3>آخر المعاملات</h3>
-    <ul class="transaction-list" id="transactions-list"></ul>
-</div>
-
-<script>
-    (async function() {
-        // انتظار استلام SDK من النواة
-        let sdk = null;
-        let transactions = [];
-
-        window.addEventListener('message', async (event) => {
-            if (event.data.type === 'HERP_INIT') {
-                const port = event.ports[0];
-                port.postMessage({ type: 'REQUEST_SDK', moduleId: 'finance' });
-                port.onmessage = async (e) => {
-                    if (e.data.type === 'SDK_READY') {
-                        sdk = e.data.sdk;
-                        await loadData();
-                        render();
-                    }
-                };
-            }
-        });
-
-        async function loadData() {
-            if (!sdk) return;
-            const saved = await sdk.load('finance_data');
-            if (saved && saved.transactions) {
-                transactions = saved.transactions;
-            }
-            updateBalance();
-        }
-
-        async function saveData() {
-            if (!sdk) return;
-            await sdk.save('finance_data', { transactions, updatedAt: Date.now() });
-        }
-
-        function updateBalance() {
-            let balance = 0;
-            for (const t of transactions) {
-                if (t.type === 'credit') balance += t.amount;
-                else balance -= t.amount;
-            }
-            document.getElementById('balance-amount').innerText = balance.toFixed(2);
-        }
-
-        function render() {
-            const list = document.getElementById('transactions-list');
-            list.innerHTML = '';
-            for (const t of transactions.slice().reverse()) {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${t.description}</span>
-                    <span class="${t.type === 'credit' ? 'credit' : 'debit'}">${t.type === 'credit' ? '+' : '-'} ${t.amount.toFixed(2)}</span>
-                    <small>${new Date(t.timestamp).toLocaleString()}</small>
-                `;
-                list.appendChild(li);
-            }
-            updateBalance();
-        }
-
-        document.getElementById('transaction-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const desc = document.getElementById('desc').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const type = document.getElementById('type').value;
-            if (!desc || isNaN(amount)) return;
-
-            transactions.push({
-                id: Date.now(),
-                description: desc,
-                amount,
-                type,
-                timestamp: Date.now()
-            });
-            await saveData();
-            render();
-            document.getElementById('desc').value = '';
-            document.getElementById('amount').value = '';
-        });
-    })();
-</script>
-</body>
-</html>
+kernel.registerModule(moduleId, api);
